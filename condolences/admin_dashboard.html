@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Admin</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-dark: #111;
+            --text-main: #d4d4d4;
+            --text-muted: #888;
+            --border-color: #2a2a2a;
+            --bg-card: #181818;
+            
+            --color-pending: #927b2e;
+            --color-approved: #3b7b4a;
+            --color-rejected: #943d3d;
+            --color-2c: #b89c37;
+            --color-teacher: #4079a8;
+            --color-flagged: #a84040;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Authentication Overlay */
+        #auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        #auth-overlay.hidden {
+            display: none;
+        }
+
+        #auth-overlay input {
+            padding: 12px 16px;
+            font-size: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        #auth-overlay button {
+            padding: 10px 24px;
+            font-size: 14px;
+            background: var(--border-color);
+            border: none;
+            color: var(--text-main);
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.2s;
+        }
+
+        #auth-overlay button:hover {
+            background: #3a3a3a;
+        }
+
+        .error-msg {
+            color: var(--color-rejected);
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* Dashboard */
+        #dashboard {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        #dashboard.visible {
+            display: block;
+        }
+
+        .footnote {
+            text-align: center;
+            color: #444;
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            padding: 40px 0 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-weight: 400;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .header-actions button {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+        
+        .header-actions button:hover {
+            background: #2a2a2a;
+        }
+
+        .header-actions button.primary {
+            background: var(--color-approved);
+            border-color: var(--color-approved);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .tab {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--border-color);
+            color: var(--text-main);
+        }
+
+        .tab .badge {
+            background: var(--color-pending);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        /* Message List */
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .message-card:hover {
+            border-color: #444;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .sender-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sender-name {
+            font-weight: 400;
+            font-size: 16px;
+        }
+
+        .timestamp {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 400;
+        }
+        .tag.class-2c { background: rgba(184, 156, 55, 0.2); color: var(--color-2c); border: 1px solid var(--color-2c); }
+        .tag.teacher { background: rgba(64, 121, 168, 0.2); color: var(--color-teacher); border: 1px solid var(--color-teacher); }
+        
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: capitalize;
+        }
+        .status-pending { background: rgba(146, 123, 46, 0.2); color: var(--color-pending); }
+        .status-approved { background: rgba(59, 123, 74, 0.2); color: var(--color-approved); }
+        .status-rejected { background: rgba(148, 61, 61, 0.2); color: var(--color-rejected); }
+
+        .message-content {
+            font-size: 15px;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+        }
+        
+        .edit-area {
+            width: 100%;
+            min-height: 100px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            font-size: 15px;
+            margin-bottom: 12px;
+            resize: vertical;
+        }
+
+        .ai-flag {
+            background: rgba(168, 64, 64, 0.1);
+            border: 1px solid var(--color-flagged);
+            color: #d88;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ai-proofread {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .ai-proofread-header {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn-use-proofread {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .btn-use-proofread:hover {
+            color: var(--text-main);
+            border-color: var(--text-main);
+        }
+
+        .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { background: #333; }
+        
+        .btn-approve { border-color: var(--color-approved); color: var(--color-approved); }
+        .btn-approve:hover { background: rgba(59, 123, 74, 0.2); }
+        
+        .btn-reject { border-color: var(--color-rejected); color: var(--color-rejected); }
+        .btn-reject:hover { background: rgba(148, 61, 61, 0.2); }
+        
+        .btn-delete { border-color: #555; color: #999; }
+        .btn-delete:hover { background: #333; color: #fff; }
+
+        .loader {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 600px) {
+            .card-header { flex-direction: column; gap: 12px; }
+            .status-badge { align-self: flex-start; }
+            .card-actions { justify-content: space-between; }
+            .card-actions .btn { flex-grow: 1; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Auth Overlay -->
+    <div id="auth-overlay">
+        <h2 style="margin-bottom: 24px; font-weight: 400;">Admin Login</h2>
+        <div class="error-msg" id="auth-error">Incorrect password</div>
+        <form id="auth-form" onsubmit="event.preventDefault(); handleLogin();">
+            <input type="password" id="password-input" placeholder="Password" required>
+            <br>
+            <button type="submit">Enter</button>
+        </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard">
+        <header>
+            <div>
+                <h1>Message Admin</h1>
+                <div class="subtitle" id="subtitle-count">Loading...</div>
+            </div>
+            <div class="header-actions">
+                <button onclick="fetchMessages()">Refresh</button>
+                <button class="primary" onclick="approveAllPending()">Approve All Pending</button>
+            </div>
+        </header>
+
+        <div class="tabs" id="tabs-container">
+            <button class="tab active" data-filter="pending">Pending <span class="badge" id="badge-pending">0</span></button>
+            <button class="tab" data-filter="approved">Approved</button>
+            <button class="tab" data-filter="rejected">Rejected</button>
+            <button class="tab" data-filter="all">All</button>
+        </div>
+
+        <div class="message-list" id="message-list">
+            <div class="loader">Loading messages...</div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://rszdrkzpokrysnrkzwfy.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzemRya3pwb2tyeXNucmt6d2Z5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Njc2MDk3MSwiZXhwIjoyMTAyMzM2OTcxfQ.FosdcLdQtmMgjo_y46rpl-S7lNYsVe2MmYuJWfSglvs';
+        const ADMIN_PASSWORD = 'condolences2c';
+        
+        let sb = null;
+        let messages = [];
+        let currentFilter = 'pending';
+        let editingId = null;
+
+        // Auth
+        function handleLogin() {
+            const pwd = document.getElementById('password-input').value;
+            if (pwd === ADMIN_PASSWORD) {
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('dashboard').classList.add('visible');
+                initSupabase();
+            } else {
+                document.getElementById('auth-error').style.display = 'block';
+            }
+        }
+
+        function initSupabase() {
+            sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            fetchMessages();
+            // Auto refresh
+            setInterval(fetchMessages, 30000);
+        }
+
+        // Tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                currentFilter = e.currentTarget.dataset.filter;
+                renderMessages();
+            });
+        });
+
+        // Data Fetching
+        async function fetchMessages() {
+            if (!sb) return;
+            const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error('Error fetching messages:', error);
+                return;
+            }
+            messages = data;
+            
+            const pendingCount = messages.filter(m => m.status === 'pending').length;
+            document.getElementById('subtitle-count').textContent = `${pendingCount} pending messages`;
+            document.getElementById('badge-pending').textContent = pendingCount;
+            
+            renderMessages();
+        }
+
+        // Time relative formatting
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return Math.floor(seconds) + " seconds ago";
+        }
+
+        // Render
+        function renderMessages() {
+            const list = document.getElementById('message-list');
+            list.innerHTML = '';
+            
+            const filtered = messages.filter(m => {
+                if (currentFilter === 'all') return true;
+                return m.status === currentFilter;
+            });
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="loader">No messages found.</div>`;
+                return;
+            }
+            
+            filtered.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'message-card';
+                
+                const isEditing = editingId === m.id;
+                
+                let tagsHtml = '';
+                if (m.is_class_2c) tagsHtml += `<span class="tag class-2c">Class 2C</span>`;
+                if (m.is_teacher) tagsHtml += `<span class="tag teacher">Teacher</span>`;
+                
+                let aiFlagHtml = '';
+                if (m.ai_flagged && m.ai_flag_reason) {
+                    aiFlagHtml = `<div class="ai-flag">⚠️ Flagged: ${escapeHtml(m.ai_flag_reason)}</div>`;
+                }
+
+                let proofreadHtml = '';
+                if (m.ai_proofread && !isEditing) {
+                    proofreadHtml = `
+                        <div class="ai-proofread">
+                            <div class="ai-proofread-header">
+                                <span>AI Suggested Proofread</span>
+                                <button class="btn-use-proofread" onclick="applyProofread('${m.id}')">Use this</button>
+                            </div>
+                            <div style="white-space: pre-wrap;">${escapeHtml(m.ai_proofread)}</div>
+                        </div>
+                    `;
+                }
+                
+                let contentHtml = '';
+                if (isEditing) {
+                    contentHtml = `
+                        <textarea class="edit-area" id="edit-text-${m.id}">${escapeHtml(m.message)}</textarea>
+                        <div>
+                            <button class="btn" onclick="saveEdit('${m.id}')">Save</button>
+                            <button class="btn" onclick="cancelEdit()">Cancel</button>
+                        </div>
+                    `;
+                } else {
+                    contentHtml = `<div class="message-content">${escapeHtml(m.message)}</div>`;
+                }
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="sender-info">
+                            <span class="sender-name">${escapeHtml(m.name)}</span>
+                            ${tagsHtml}
+                            <span class="timestamp">${timeAgo(m.created_at)}</span>
+                        </div>
+                        <div class="status-badge status-${m.status}">${m.status}</div>
+                    </div>
+                    ${aiFlagHtml}
+                    ${contentHtml}
+                    ${proofreadHtml}
+                    <div class="card-actions">
+                        ${m.status !== 'approved' ? `<button class="btn btn-approve" onclick="updateStatus('${m.id}', 'approved')">Approve</button>` : ''}
+                        ${m.status !== 'rejected' ? `<button class="btn btn-reject" onclick="updateStatus('${m.id}', 'rejected')">Reject</button>` : ''}
+                        ${!isEditing ? `<button class="btn" onclick="startEdit('${m.id}')">Edit</button>` : ''}
+                        <button class="btn" onclick="toggleFlag('${m.id}', 'is_class_2c', ${m.is_class_2c})">2C</button>
+                        <button class="btn" onclick="toggleFlag('${m.id}', 'is_teacher', ${m.is_teacher})">Staff</button>
+                        <button class="btn btn-delete" onclick="deleteMessage('${m.id}')">Delete</button>
+                    </div>
+                `;
+                
+                list.appendChild(card);
+            });
+        }
+        
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Actions
+        async function updateStatus(id, newStatus) {
+            // Optimistic update
+            const msg = messages.find(m => m.id === id);
+            if (msg) msg.status = newStatus;
+            renderMessages();
+            
+            await sb.from('messages').update({ status: newStatus }).eq('id', id);
+            fetchMessages(); // re-sync
+        }
+
+        function startEdit(id) {
+            editingId = id;
+            renderMessages();
+        }
+
+        function cancelEdit() {
+            editingId = null;
+            renderMessages();
+        }
+
+        async function saveEdit(id) {
+            const newText = document.getElementById(`edit-text-${id}`).value;
+            const msg = messages.find(m => m.id === id);
+            if (msg) msg.message = newText;
+            editingId = null;
+            renderMessages();
+            
+            await sb.from('messages').update({ message: newText }).eq('id', id);
+            fetchMessages();
+        }
+
+        async function applyProofread(id) {
+            const msg = messages.find(m => m.id === id);
+            if (msg && msg.ai_proofread) {
+                msg.message = msg.ai_proofread;
+                renderMessages();
+                await sb.from('messages').update({ message: msg.ai_proofread }).eq('id', id);
+                fetchMessages();
+            }
+        }
+
+        async function toggleFlag(id, flagName, currentValue) {
+            const msg = messages.find(m => m.id === id);
+            if (msg) msg[flagName] = !currentValue;
+            renderMessages();
+            
+            await sb.from('messages').update({ [flagName]: !currentValue }).eq('id', id);
+            fetchMessages();
+        }
+
+        async function deleteMessage(id) {
+            if (confirm('Are you sure you want to delete this message permanently?')) {
+                messages = messages.filter(m => m.id !== id);
+                renderMessages();
+                await sb.from('messages').delete().eq('id', id);
+                fetchMessages();
+            }
+        }
+
+        async function approveAllPending() {
+            const pendingMsgs = messages.filter(m => m.status === 'pending');
+            if (pendingMsgs.length === 0) return;
+            
+            if (confirm(`Approve all ${pendingMsgs.length} pending messages?`)) {
+                pendingMsgs.forEach(m => m.status = 'approved');
+                renderMessages();
+                
+                await sb.from('messages').update({ status: 'approved' }).eq('status', 'pending');
+                fetchMessages();
+            }
+        }
+    </script>
+<div class="footnote">♡ from sol</div>
+</body>
+</html>

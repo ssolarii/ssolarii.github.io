@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="icon" type="image/png" href="assets/adminfavicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #111;
+            --text-main: #d4d4d4;
+            --text-muted: #888;
+            --border-color: #2a2a2a;
+            --bg-card: #181818;
+            --color-rejected: #943d3d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #auth-container {
+            width: 100%;
+            max-width: 360px;
+            padding: 40px 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        h2 {
+            font-weight: 400;
+            font-size: 20px;
+            margin-bottom: 24px;
+            letter-spacing: 0.05em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 6px;
+            outline: none;
+            font-family: 'Montserrat', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        input[type="password"]:focus {
+            border-color: #555;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            background: var(--border-color);
+            border: none;
+            color: var(--text-main);
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        .error-msg {
+            color: var(--color-rejected);
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .loading-spinner {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="auth-container">
+        <h2>Login</h2>
+        <div class="error-msg" id="auth-error">Incorrect password</div>
+        <form id="auth-form" onsubmit="event.preventDefault(); handleAuthSubmit();">
+            <div class="input-group">
+                <input type="password" id="password-input" placeholder="Password" required autofocus>
+            </div>
+            <button type="submit" id="submit-btn">Submit Password</button>
+            <div class="loading-spinner" id="loading-spinner">Trying to decrypt..</div>
+        </form>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for(let i=0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            }
+            return null;
+        }
+
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days*24*60*60*1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+        }
+
+        let encryptedPayloadCache = null;
+
+        async function fetchPayload() {
+            if (encryptedPayloadCache) return encryptedPayloadCache;
+            const res = await fetch('assets/admin_payload.enc');
+            if (!res.ok) throw new Error('Failed to load payload');
+            encryptedPayloadCache = await res.text();
+            return encryptedPayloadCache;
+        }
+
+        async function attemptDecrypt(password) {
+            const errorDiv = document.getElementById('auth-error');
+            const spinner = document.getElementById('loading-spinner');
+            const btn = document.getElementById('submit-btn');
+
+            errorDiv.style.display = 'none';
+            spinner.style.display = 'block';
+            if (btn) btn.disabled = true;
+
+            try {
+                const payload = await fetchPayload();
+                const bytes = CryptoJS.AES.decrypt(payload.trim(), password);
+                const decryptedHtml = bytes.toString(CryptoJS.enc.Utf8);
+
+                if (decryptedHtml && decryptedHtml.includes('<!-- ADMIN_PANEL_VALIDATED -->')) {
+                    // Password correct! Save to session & cookie
+                    sessionStorage.setItem('admin_pass', password);
+                    setCookie('admin_pass', password, 7);
+
+                    // Render decrypted Admin Panel into document
+                    document.open();
+                    document.write(decryptedHtml);
+                    document.close();
+                    return true;
+                } else {
+                    throw new Error('Invalid password');
+                }
+            } catch (err) {
+                console.warn('Decryption failed:', err);
+                errorDiv.style.display = 'block';
+                spinner.style.display = 'none';
+                if (btn) btn.disabled = false;
+                sessionStorage.removeItem('admin_pass');
+                setCookie('admin_pass', '', -1);
+                return false;
+            }
+        }
+
+        async function handleAuthSubmit() {
+            const pwd = document.getElementById('password-input').value;
+            if (pwd) {
+                await attemptDecrypt(pwd);
+            }
+        }
+
+        // Auto-login if valid password saved in session/cookie
+        document.addEventListener('DOMContentLoaded', async () => {
+            const savedPass = sessionStorage.getItem('admin_pass') || getCookie('admin_pass');
+            if (savedPass) {
+                const success = await attemptDecrypt(savedPass);
+                if (!success) {
+                    document.getElementById('password-input').focus();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

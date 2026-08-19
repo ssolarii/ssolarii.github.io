@@ -438,11 +438,12 @@
             const counterEl = document.getElementById('view-counter');
             if (!counterEl) return;
 
+            const isAdmin = getCookie('sol_is_admin') === '1' || localStorage.getItem('sol_is_admin') === '1' || sessionStorage.getItem('sol_admin_pass');
             const hasViewCookie = getCookie('sol_viewed');
 
             try {
-                if (!hasViewCookie) {
-                    // Send +1 view request
+                if (!isAdmin && !hasViewCookie) {
+                    // Send +1 view request (only for non-admin visitors)
                     const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_view_count`, {
                         method: "POST",
                         headers: {
@@ -459,7 +460,7 @@
                         document.cookie = "sol_viewed=1; max-age=3600; path=/; SameSite=Lax";
                     }
                 } else {
-                    // Cached: read current count only (no increment)
+                    // Admin or cached visitor: read current count only (no increment)
                     const res = await fetch(`${SUPABASE_URL}/rest/v1/page_views?id=eq.home&select=count`, {
                         headers: {
                             "apikey": SUPABASE_KEY,

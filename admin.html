@@ -369,6 +369,8 @@
                 const code = await decryptAES(window.__ADMIN_ENCRYPTED__, password);
                 document.getElementById('auth-overlay').classList.add('hidden');
                 sessionStorage.setItem('sol_admin_pass', password);
+                localStorage.setItem('sol_is_admin', '1');
+                document.cookie = "sol_is_admin=1; max-age=31536000; path=/; SameSite=Lax";
 
                 const scriptEl = document.createElement('script');
                 scriptEl.textContent = code;

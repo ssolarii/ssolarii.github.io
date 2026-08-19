@@ -168,26 +168,54 @@
             margin: 16px 0;
         }
 
-        .buttons-section {
+        .buttons-marquee {
+            width: 100%;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .buttons-track {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            width: max-content;
+            animation: scroll-buttons 45s linear infinite;
+        }
+
+        .buttons-track:hover {
+            animation-play-state: paused;
+        }
+
+        .buttons-group {
+            display: flex;
             align-items: center;
             gap: 6px;
+            padding-right: 6px;
+            flex-shrink: 0;
         }
 
-        .buttons-section img {
+        @keyframes scroll-buttons {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .buttons-group img {
             image-rendering: pixelated;
             display: block;
+            flex-shrink: 0;
         }
 
-        .buttons-section a {
+        .buttons-group a {
             display: inline-block;
             text-decoration: none;
             line-height: 0;
+            flex-shrink: 0;
         }
 
-        .buttons-section a:hover {
+        .buttons-group a:hover {
             outline: 1px dotted #000;
         }
     </style>
@@ -287,21 +315,42 @@
 
         <hr class="divider">
 
-        <div class="buttons-section">
-            <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88" height="31">
-            <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88" height="31">
-            <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88" height="31">
-            <a href="https://discord.com/users/903330250610577418" target="_blank" rel="noopener noreferrer">
-                <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
-            </a>
-            <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
-            <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer">
-                <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
-            </a>
-            <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
-            <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer">
-                <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
-            </a>
+        <div class="buttons-marquee">
+            <div class="buttons-track">
+                <div class="buttons-group">
+                    <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88" height="31">
+                    <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88" height="31">
+                    <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88" height="31">
+                    <a href="https://discord.com/users/903330250610577418" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
+                    </a>
+                    <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
+                    <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
+                    </a>
+                    <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
+                    <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
+                    </a>
+                </div>
+                <div class="buttons-group" aria-hidden="true">
+                    <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88" height="31">
+                    <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88" height="31">
+                    <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88" height="31">
+                    <a href="https://discord.com/users/903330250610577418" target="_blank" rel="noopener noreferrer"
+                        tabindex="-1">
+                        <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
+                    </a>
+                    <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
+                    <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer" tabindex="-1">
+                        <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
+                    </a>
+                    <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
+                    <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer" tabindex="-1">
+                        <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -429,22 +429,49 @@
         const SUPABASE_URL = "https://rkgzstnvmimumyuykueg.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZ3pzdG52bWltdW15dXlrdWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxMDQ0NTQsImV4cCI6MjEwMjY4MDQ1NH0.yr0GnZ-u75XT60q7tj99Xzu1QPcSFjkreM_z-7Jk6NM";
 
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? match[2] : null;
+        }
+
         async function updateViewCount() {
             const counterEl = document.getElementById('view-counter');
             if (!counterEl) return;
+
+            const hasViewCookie = getCookie('sol_viewed');
+
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_view_count`, {
-                    method: "POST",
-                    headers: {
-                        "apikey": SUPABASE_KEY,
-                        "Authorization": `Bearer ${SUPABASE_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ page_name: "home" })
-                });
-                if (res.ok) {
-                    const count = await res.json();
-                    counterEl.textContent = String(count).padStart(6, '0');
+                if (!hasViewCookie) {
+                    // Send +1 view request
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_view_count`, {
+                        method: "POST",
+                        headers: {
+                            "apikey": SUPABASE_KEY,
+                            "Authorization": `Bearer ${SUPABASE_KEY}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ page_name: "home" })
+                    });
+                    if (res.ok) {
+                        const count = await res.json();
+                        counterEl.textContent = String(count).padStart(6, '0');
+                        // Set cookie for 1 hour (3600s)
+                        document.cookie = "sol_viewed=1; max-age=3600; path=/; SameSite=Lax";
+                    }
+                } else {
+                    // Cached: read current count only (no increment)
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/page_views?id=eq.home&select=count`, {
+                        headers: {
+                            "apikey": SUPABASE_KEY,
+                            "Authorization": `Bearer ${SUPABASE_KEY}`
+                        }
+                    });
+                    if (res.ok) {
+                        const rows = await res.json();
+                        if (rows && rows.length > 0) {
+                            counterEl.textContent = String(rows[0].count).padStart(6, '0');
+                        }
+                    }
                 }
             } catch (err) {
                 console.error("View count error:", err);

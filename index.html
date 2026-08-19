@@ -8,6 +8,7 @@
     <link rel="icon" href="assets/frames/1.png" type="image/png">
     <script src="scripts/anicon.js" defer></script>
     <script src="scripts/scroll.js" defer></script>
+    <script src="scripts/sparkle.js" defer></script>
     <style>
         @font-face {
             font-family: 'W95FA';
@@ -127,10 +128,19 @@
             animation: flicker 0.15s infinite;
         }
 
+        .container {
+            width: 100%;
+            max-width: 960px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 0 auto;
+        }
+
         .card {
             width: 100%;
-            max-width: 440px;
-            padding: 42px 24px 34px 24px;
+            min-width: 0;
+            padding: 24px 20px 20px 20px;
             border-image-slice: 20 11 20 19 fill;
             border-image-width: 20px 11px 20px 19px;
             border-image-repeat: repeat round;
@@ -141,25 +151,122 @@
             text-align: center;
         }
 
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin: 0 0 10px 0;
-            color: #000;
+        .header-card {
+            padding: 24px 16px;
         }
 
-        .status {
-            font-size: 14px;
-            line-height: 1.5;
+        .title {
+            margin: 0;
+            line-height: 1;
+        }
+
+        .title-img {
+            image-rendering: pixelated;
+            max-width: 100%;
+            height: auto;
+            width: 540px;
+            aspect-ratio: 6 / 1;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 200px minmax(0, 1fr) 200px;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .main-content {
+            min-width: 0;
+        }
+
+        .sidebar-left,
+        .sidebar-right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .card-heading {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
             color: #222;
-            margin: 0 0 16px 0;
+            border-bottom: 1px dashed #888;
+            padding-bottom: 4px;
+            text-align: left;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        .nav-list li {
+            margin: 6px 0;
+        }
+
+        .nav-list a,
+        .retro-link {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        .nav-list a:hover,
+        .retro-link:hover {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .nav-disabled {
+            color: #888;
+            user-select: none;
+        }
+
+        .nav-disabled del {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .side-text {
+            font-size: 12px;
+            margin: 6px 0;
+            text-align: left;
+        }
+
+        .discord-icon {
+            width: 12px;
+            height: 12px;
+            vertical-align: -1px;
+            display: inline-block;
+            margin-left: 2px;
         }
 
         .notice {
             font-size: 13px;
-            color: #555;
-            margin: 0 0 20px 0;
+            color: #222;
+            margin: 0;
+            text-align: left;
+        }
+
+        .notice p {
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+        }
+
+        .notice p:last-child {
+            margin-bottom: 0;
+        }
+
+        .notice-divider {
+            border: none;
+            border-top: 1px dashed #bbb;
+            margin: 10px 0;
         }
 
         .divider {
@@ -180,47 +287,40 @@
             animation: scroll-buttons 45s linear infinite;
         }
 
-        .buttons-track:hover {
+        .buttons-marquee:hover .buttons-track {
             animation-play-state: paused;
         }
 
         .buttons-group {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding-right: 6px;
-            flex-shrink: 0;
+            gap: 8px;
+            padding-right: 8px;
+        }
+
+        .buttons-group img {
+            display: block;
+            image-rendering: pixelated;
+            outline: 1px dotted #000;
         }
 
         @keyframes scroll-buttons {
             0% {
                 transform: translateX(0);
             }
-
             100% {
                 transform: translateX(-50%);
             }
         }
 
-        .buttons-group img {
-            image-rendering: pixelated;
-            display: block;
-            flex-shrink: 0;
-        }
-
-        .buttons-group a {
-            display: inline-block;
-            text-decoration: none;
-            line-height: 0;
-            flex-shrink: 0;
-        }
-
-        .buttons-group a:hover {
-            outline: 1px dotted #000;
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
     <script>
-        const start = new Date('2026-08-18T15:27:00-06:00');
+        const start = new Date('2026-08-18T22:07:12-06:00');
 
         function formatElapsedTime(diffMs) {
             if (diffMs < 0) diffMs = 0;
@@ -289,16 +389,126 @@
             }
         }
 
+        async function updateLanyardStatus() {
+            try {
+                const res = await fetch('https://api.lanyard.rest/v1/users/903330250610577418');
+                const data = await res.json();
+                if (!data.success) return;
+
+                const presence = data.data;
+                const statusEl = document.getElementById('discord-status');
+                const trackEl = document.getElementById('spotify-track');
+
+                if (statusEl) {
+                    const statusColors = {
+                        online: '#43b581',
+                        idle: '#faa61a',
+                        dnd: '#f04747',
+                        offline: '#747f8d'
+                    };
+                    const status = presence.discord_status || 'offline';
+                    const color = statusColors[status] || '#747f8d';
+                    statusEl.innerHTML = `[<span style="color: ${color}; font-size: 10px;">●</span> ${status} <img src="assets/discord.svg" class="discord-icon" alt="discord">]`;
+                }
+
+                if (trackEl) {
+                    if (presence.listening_to_spotify && presence.spotify) {
+                        const song = presence.spotify.song;
+                        const artist = presence.spotify.artist;
+                        const trackId = presence.spotify.track_id;
+                        trackEl.innerHTML = `<a href="https://open.spotify.com/track/${trackId}" target="_blank" rel="noopener noreferrer" class="retro-link" title="${song} by ${artist}"><b>${song}</b> — ${artist}</a> <a href="https://open.spotify.com/user/312tpdqjc4wbmnjm6qhv2i5zxl5m" target="_blank" rel="noopener noreferrer" title="Spotify Profile"><img src="assets/spotify.svg" class="discord-icon" alt="spotify"></a>`;
+                    } else {
+                        trackEl.innerHTML = `nothing right now <a href="https://open.spotify.com/user/312tpdqjc4wbmnjm6qhv2i5zxl5m" target="_blank" rel="noopener noreferrer" title="Spotify Profile"><img src="assets/spotify.svg" class="discord-icon" alt="spotify"></a>`;
+                    }
+                }
+            } catch (err) {
+                console.error("Lanyard error:", err);
+            }
+        }
+
+        const SUPABASE_URL = "https://rkgzstnvmimumyuykueg.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZ3pzdG52bWltdW15dXlrdWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxMDQ0NTQsImV4cCI6MjEwMjY4MDQ1NH0.yr0GnZ-u75XT60q7tj99Xzu1QPcSFjkreM_z-7Jk6NM";
+
+        async function updateViewCount() {
+            const counterEl = document.getElementById('view-counter');
+            if (!counterEl) return;
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_view_count`, {
+                    method: "POST",
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${SUPABASE_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ page_name: "home" })
+                });
+                if (res.ok) {
+                    const count = await res.json();
+                    counterEl.textContent = String(count).padStart(6, '0');
+                }
+            } catch (err) {
+                console.error("View count error:", err);
+            }
+        }
+
+        function escapeHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        async function fetchLatestPost() {
+            const blogEl = document.getElementById('miniblog-entry');
+            if (!blogEl) return;
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?select=*&is_published=eq.true&order=created_at.desc&limit=1`, {
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                if (res.ok) {
+                    const posts = await res.json();
+                    if (posts && posts.length > 0) {
+                        const p = posts[0];
+                        const date = new Date(p.created_at).toLocaleDateString(undefined, {
+                            year: 'numeric', month: 'short', day: 'numeric'
+                        });
+                        const moodHtml = p.mood ? `<span style="color:#0040ff; margin-left: 6px;">[mood: ${escapeHTML(p.mood)}]</span>` : '';
+                        blogEl.innerHTML = `
+                            <div style="font-weight:bold; font-size:14px; margin-bottom:4px;">✦ ${escapeHTML(p.title)}</div>
+                            <div style="font-size:11px; color:#666; margin-bottom:8px;">${date} ${moodHtml}</div>
+                            <div style="font-size:13px; line-height:1.4; white-space:pre-wrap;">${escapeHTML(p.content)}</div>
+                        `;
+                        return;
+                    }
+                }
+                blogEl.innerHTML = '<p style="font-size:12px; color:#888;">no posts published yet.</p>';
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", () => {
                 updateCounter();
                 setInterval(updateCounter, 1000);
                 initCrtToggle();
+                updateLanyardStatus();
+                setInterval(updateLanyardStatus, 15000);
+                updateViewCount();
+                fetchLatestPost();
             });
         } else {
             updateCounter();
             setInterval(updateCounter, 1000);
             initCrtToggle();
+            updateLanyardStatus();
+            setInterval(updateLanyardStatus, 15000);
+            updateViewCount();
+            fetchLatestPost();
         }
     </script>
 </head>
@@ -306,54 +516,129 @@
 <body>
     <button id="crt-toggle" class="crt-toggle" type="button">crt: on</button>
     <div class="crt"></div>
-    <div class="card">
-        <h1 class="title">site in development</h1>
-        <div class="notice">
-            <p style="font-size:18px; font-weight:400;">check back soon!</p>
-            <p>(it's been <span id="counter"></span>)</p>
-        </div>
 
-        <hr class="divider">
+    <div class="container">
+        <!-- Top Full-Width Header -->
+        <header class="card header-card">
+            <h1 class="title">
+                <img src="assets/title.png" alt="welcome to my paradise" class="title-img">
+            </h1>
+        </header>
 
-        <div class="buttons-marquee">
-            <div class="buttons-track">
-                <div class="buttons-group">
-                    <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88" height="31">
-                    <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88" height="31">
-                    <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88" height="31">
-                    <a href="https://discord.com/users/903330250610577418" target="_blank" rel="noopener noreferrer">
-                        <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
-                    </a>
-                    <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
-                    <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer">
-                        <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
-                    </a>
-                    <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
-                    <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer">
-                        <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
-                    </a>
+        <!-- 3-Column Content Layout -->
+        <div class="content-grid">
+            <!-- Left Sidebar -->
+            <aside class="sidebar-left">
+                <div class="card">
+                    <h2 class="card-heading">// navigation</h2>
+                    <ul class="nav-list">
+                        <li><a href="index.html">&raquo; home</a></li>
+                        <li><span class="nav-disabled">&raquo; <del>about</del></span></li>
+                        <li><a href="journal.html">&raquo; journal</a></li>
+                        <li><span class="nav-disabled">&raquo; <del>shrines</del></span></li>
+                        <li><span class="nav-disabled">&raquo; <del>links</del></span></li>
+                    </ul>
                 </div>
-                <div class="buttons-group" aria-hidden="true">
-                    <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88" height="31">
-                    <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88" height="31">
-                    <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88" height="31">
-                    <a href="https://discord.com/users/903330250610577418" target="_blank" rel="noopener noreferrer"
-                        tabindex="-1">
-                        <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
-                    </a>
-                    <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
-                    <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer" tabindex="-1">
-                        <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
-                    </a>
-                    <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
-                    <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer" tabindex="-1">
-                        <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
-                    </a>
+                <div class="card">
+                    <h2 class="card-heading">// status</h2>
+                    <p class="side-text"><b id="discord-status">[<span style="color: #43b581; font-size: 10px;">●</span>
+                            online <img src="assets/discord.svg" class="discord-icon" alt="discord">]</b></p>
+                    <p class="side-text">listening:<br><span id="spotify-track">loading...</span></p>
                 </div>
-            </div>
+            </aside>
+
+            <!-- Center Main Column -->
+            <main class="main-content">
+                <div class="card">
+                    <div class="notice">
+                        <p style="font-size:15px; font-weight:400; line-height: 1.5; margin: 0 0 10px 0;">welcome to my site! this is mainly for me to express
+                            my 'skills' in web design and to document my life. it is a work in progress, and it probably
+                            always will be.</p>
+                        <hr class="notice-divider">
+                        <p style="font-size:13px; line-height: 1.4; color: #333; margin: 0 0 6px 0;">this website is still heavily in development and is very broken. bugs
+                            are being fixed but it will take time. apologies.
+                        </p>
+                        <p style="font-size:11px; color: #777; margin: 0;">(almost all links other than journal &amp; guestbook are currently disabled... )
+                        </p>
+                    </div>
+
+                    <hr class="divider">
+
+                    <div class="buttons-marquee">
+                        <div class="buttons-track">
+                            <div class="buttons-group">
+                                <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88"
+                                    height="31">
+                                <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88"
+                                    height="31">
+                                <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88"
+                                    height="31">
+                                <a href="https://discord.com/users/903330250610577418" target="_blank"
+                                    rel="noopener noreferrer">
+                                    <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
+                                </a>
+                                <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
+                                <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer">
+                                    <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
+                                </a>
+                                <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
+                                <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer">
+                                    <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
+                                </a>
+                            </div>
+                            <div class="buttons-group" aria-hidden="true">
+                                <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88"
+                                    height="31">
+                                <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88"
+                                    height="31">
+                                <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88"
+                                    height="31">
+                                <a href="https://discord.com/users/903330250610577418" target="_blank"
+                                    rel="noopener noreferrer" tabindex="-1">
+                                    <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
+                                </a>
+                                <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
+                                <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer"
+                                    tabindex="-1">
+                                    <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
+                                </a>
+                                <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
+                                <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer" tabindex="-1">
+                                    <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="divider">
+                    <div class="miniblog" style="text-align: left; margin-top: 16px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #888; padding-bottom: 4px; margin-bottom: 10px;">
+                            <span style="font-weight: bold; font-size: 13px;">// latest journal entry</span>
+                            <a href="journal.html" class="retro-link" style="font-size: 12px;">&raquo; view all
+                                entries</a>
+                        </div>
+                        <div id="miniblog-entry">
+                            <p style="font-size:12px; color:#888;">loading latest entry...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Sidebar -->
+            <aside class="sidebar-right">
+                <div class="card">
+                    <h2 class="card-heading">// stats</h2>
+                    <p class="side-text">views: <code id="view-counter">000000</code></p>
+                    <p class="side-text">site updated <wbr> <span id="counter"></span> <wbr> ago</p>
+                </div>
+                <div class="card">
+                    <h2 class="card-heading">// guestbook</h2>
+                    <p class="side-text"><a href="guestbook.html" class="retro-link">&raquo; sign guestbook</a></p>
+                </div>
+            </aside>
         </div>
     </div>
-
 </body>
 
 </html>

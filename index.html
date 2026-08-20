@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sol's paradise</title>
+    <title>under construction</title>
     <link rel="icon" href="assets/frames/1.png" type="image/png">
     <script src="scripts/anicon.js" defer></script>
     <script src="scripts/scroll.js" defer></script>
@@ -26,13 +26,13 @@
             margin: 0;
             min-height: 100vh;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
             background-image: url('assets/bg.png');
             background-repeat: repeat;
             font-family: 'W95FA', 'MS Sans Serif', Arial, sans-serif;
             color: #000;
-            padding: 50px 20px 60px 20px;
+            padding: 20px;
         }
 
         ::selection {
@@ -40,21 +40,10 @@
             color: #ffffff;
         }
 
-        #counter {
-            text-decoration: underline;
-            color: #0040ff;
-        }
-
-        .fixed-toggles {
+        .crt-toggle {
             position: fixed;
             bottom: 16px;
             right: 16px;
-            display: flex;
-            gap: 6px;
-            z-index: 100;
-        }
-
-        .retro-toggle {
             background: #c0c0c0;
             color: #000;
             font-family: 'W95FA', 'MS Sans Serif', Arial, sans-serif;
@@ -63,13 +52,13 @@
             border: 2px solid;
             border-color: #fff #808080 #808080 #fff;
             cursor: pointer;
+            z-index: 100;
             image-rendering: pixelated;
             user-select: none;
         }
 
-        .retro-toggle:active, .retro-toggle.off {
+        .crt-toggle:active {
             border-color: #808080 #fff #fff #808080;
-            background: #b0b0b0;
             padding: 5px 9px 3px 11px;
         }
 
@@ -140,19 +129,10 @@
             animation: flicker 0.15s infinite;
         }
 
-        .container {
-            width: 100%;
-            max-width: 960px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin: 0 auto;
-        }
-
         .card {
             width: 100%;
-            min-width: 0;
-            padding: 24px 20px 20px 20px;
+            max-width: 440px;
+            padding: 36px 24px 30px 24px;
             border-image-slice: 20 11 20 19 fill;
             border-image-width: 20px 11px 20px 19px;
             border-image-repeat: repeat round;
@@ -161,230 +141,36 @@
             image-rendering: pixelated;
             border-image-source: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADEAAABoCAMAAABvw+gRAAAALVBMVEUAAADu7u6qqqqZmZmIiIh3d3e7u7vMzMz////d3d1mZmZVVVX+/v7v7+/w8PCGxkBUAAAAAXRSTlMAQObYZgAAA+lJREFUeNqNWAmC2zAINKeM4u3/n9tYK2yTcdzSY3UwGhAINlkuQiyibzE1MxbTfcbMsq/zAmLmjda30HqVoKAIFzWVqq9TowAo50TRxPQK8PVB6JfN9YT0+KJaOZtqYQAXQMjzArRq01coif1SXJZAtW6RciLy5EqFh/ySyPosiTwQ1nLtmxN0DmIgwCS6mJIbubUHnv/LqASdiHLoQ2j6noGw+yTTj3koM2fiIQsiVjJ+i9Izx8gsN7N4o0c4Wf9l1RSLHTDwbRhU4k3HSuiCorfBe0A8Jw1JvnF1nwD3p3dC+qtvlOOS+/gGaGhxXOGvuCsOlOPGuxmHV8YqVFyGSEZBpM5TbpFC7n59IoTZTnAyJvVAmJSTKgBhmlcF5xXi6oecm43biiyfVvWW88ZhIQ6xq9y6+GG/Wx8t4VAgoBgczq4iKpwFUqAjlPvF3DXHayB8UdaXpc/G0KoSlUlyWHPhNq3iewfynwyCNobTKH+qqUPNKCij+VgYqFSfMWUT8+IrkBHtCIYw05xuP7f1yhyOTNn+lMeViO6g/pCP80XNtTQuviETIQ/PCEOSHA9JXnED0dNMINmgWtCMR3I24ZbocVVo5ERMCDfrTaFElVnIbpVTRKwrL8NEPVQ2uOGs1Natt2h9pmIrRmHnBOHTig0K3PTDupkdWB70J0ktPiOvwj1iGIUtKmnoEvPe5jzc8p0frg8a+shdaxkC526unIdu23Qd8or5mDX104afP9tHRIhmtjdaUQhvl2o3oMsrqBGkGnmdl0PQyE4OrHD81MaAZlpFX5Q2RPF8g8X+vF3wPa16HYRdXz5hebvFtUTQK46sZLG1eF6Js7bzi47GwOyQVal/7R+NTTJ15fJsf2oVzW5QxbnWROiDz4ihXSMryyLcTbuqTYSu9UVVGuKzIgY7eA427Rx89nNpHsqoRReK0aPOnTem1tMNKIiXQYL0xRGqiEVLJa4UKJmJqV9GQEHDj9o/qOps0KUGggnduO2cNN+5ciqTd/7wfINy/UZ4m83Yhd27zJ2E/FTmgciayCNJMuYglAiPufDaEdDkAKULv4K5RfMJWASqCtSShaf2RBR9EDs12fGzAXKQ5jOSFlK/PrgH0tBqHDQyFykQxTsgScO1e5RESlvq5ygG5hsfKBECjQ9Ldpk3KRyghGvB+XsJnI7jk6Ond9ipsOa77xztyaRKHeJLeYQAADfU74IWqUD0eUgbiOkI3Z9dQOQzrfReAx0Jc/gu6vkLE1b4NgqOLUuhgp9s8NGdnE1tOaXrqRr3WFZdipixRwRFEBGtFOuYrWPWWNh0ARFRURFR3Uc2f8r47yD4C5YqfMcto41mAAAAAElFTkSuQmCC");
             text-align: center;
+            filter: drop-shadow(4px 4px 0px rgba(0, 0, 0, 0.4));
         }
 
-        .header-card {
-            padding: 24px 16px;
+        .construction-gif {
+            display: block;
+            margin: 0 auto 16px auto;
+            max-width: 100%;
+            image-rendering: pixelated;
         }
 
         .title {
-            margin: 0;
-            line-height: 1;
-        }
-
-        .title-img {
-            image-rendering: pixelated;
-            max-width: 100%;
-            height: auto;
-            width: 540px;
-            aspect-ratio: 6 / 1;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 200px minmax(0, 1fr) 200px;
-            gap: 16px;
-            align-items: start;
-        }
-
-        .main-content {
-            min-width: 0;
-        }
-
-        .sidebar-left,
-        .sidebar-right {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            min-width: 0;
-        }
-
-        .card-heading {
-            font-size: 13px;
+            font-size: 22px;
             font-weight: bold;
-            margin: 0 0 10px 0;
-            color: #222;
-            border-bottom: 1px dashed #888;
-            padding-bottom: 4px;
-            text-align: left;
-        }
-
-        .nav-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            text-align: left;
-        }
-
-        .nav-list li {
-            margin: 6px 0;
-        }
-
-        .nav-list a,
-        .retro-link {
+            letter-spacing: 1px;
+            margin: 0 0 12px 0;
             color: #000;
-            text-decoration: underline;
-        }
-
-        .nav-list a:hover,
-        .retro-link:hover {
-            background-color: #000;
-            color: #fff;
-        }
-
-        .nav-disabled {
-            color: #888;
-            user-select: none;
-        }
-
-        .nav-disabled del {
-            text-decoration: line-through;
-            color: #888;
-        }
-
-        .side-text {
-            font-size: 12px;
-            margin: 6px 0;
-            text-align: left;
-        }
-
-        .discord-icon {
-            width: 12px;
-            height: 12px;
-            vertical-align: -1px;
-            display: inline-block;
-            margin-left: 2px;
         }
 
         .notice {
             font-size: 13px;
-            color: #222;
+            color: #333;
+            line-height: 1.5;
             margin: 0;
-            text-align: left;
         }
 
         .notice p {
-            margin: 0 0 8px 0;
-            line-height: 1.5;
-        }
-
-        .notice p:last-child {
-            margin-bottom: 0;
-        }
-
-        .notice-divider {
-            border: none;
-            border-top: 1px dashed #bbb;
-            margin: 10px 0;
-        }
-
-        .divider {
-            border: none;
-            border-top: 1px dashed #777;
-            margin: 16px 0;
-        }
-
-        .buttons-marquee {
-            width: 100%;
-            overflow: hidden;
-            user-select: none;
-        }
-
-        .buttons-track {
-            display: flex;
-            width: max-content;
-            animation: scroll-buttons 45s linear infinite;
-        }
-
-        /* .buttons-marquee:hover .buttons-track {
-            animation-play-state: paused;
-        } */
-
-        .buttons-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-right: 8px;
-        }
-
-        .buttons-group img {
-            display: block;
-            image-rendering: pixelated;
-            outline: 1px dotted #000;
-        }
-
-        @keyframes scroll-buttons {
-            0% {
-                transform: translateX(0);
-            }
-
-            100% {
-                transform: translateX(-50%);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
+            margin: 6px 0;
         }
     </style>
     <script>
-        const start = new Date('2026-08-18T22:07:12-06:00');
-
-        function formatElapsedTime(diffMs) {
-            if (diffMs < 0) diffMs = 0;
-            const totalSeconds = Math.floor(diffMs / 1000);
-            const totalMinutes = Math.floor(totalSeconds / 60);
-            const totalHours = Math.floor(totalMinutes / 60);
-            const totalDays = Math.floor(totalHours / 24);
-            const totalMonths = Math.floor(totalDays / 30.4375);
-            const totalYears = Math.floor(totalDays / 365.25);
-
-            const seconds = totalSeconds % 60;
-            const minutes = totalMinutes % 60;
-            const hours = totalHours % 24;
-            const days = Math.floor(totalDays % 30.4375);
-            const months = totalMonths % 12;
-            const years = totalYears;
-
-            const units = [];
-            if (years > 0) units.push({ val: years, singular: "year", plural: "years" });
-            if (months > 0 || years > 0) units.push({ val: months, singular: "month", plural: "months" });
-            if (days > 0 || months > 0 || years > 0) units.push({ val: days, singular: "day", plural: "days" });
-            if (hours > 0 || days > 0 || months > 0 || years > 0) units.push({ val: hours, singular: "hour", plural: "hours" });
-            if (minutes > 0 || hours > 0 || days > 0 || months > 0 || years > 0) units.push({ val: minutes, singular: "minute", plural: "minutes" });
-            units.push({ val: seconds, singular: "second", plural: "seconds" });
-
-            const active = [];
-            for (const u of units) {
-                if (active.length === 0 && u.val === 0) continue;
-                active.push(u);
-                if (active.length === 2) break;
-            }
-
-            if (active.length === 0) {
-                return "0 seconds";
-            }
-
-            return active
-                .filter((u) => u.val > 0 || active.length === 1)
-                .map((u) => `${u.val} ${u.val === 1 ? u.singular : u.plural}`)
-                .join(" ");
-        }
-
-        function updateCounter() {
-            const now = new Date();
-            const diff = now - start;
-            const el = document.getElementById('counter');
-            if (el) {
-                el.textContent = formatElapsedTime(diff);
-            }
-        }
-
         function initCrtToggle() {
             const btn = document.getElementById('crt-toggle');
             const isOff = localStorage.getItem('crt') === 'off';
@@ -402,297 +188,27 @@
             }
         }
 
-        async function updateLanyardStatus() {
-            try {
-                const res = await fetch('https://api.lanyard.rest/v1/users/903330250610577418');
-                const data = await res.json();
-                if (!data.success) return;
-
-                const presence = data.data;
-                const statusEl = document.getElementById('discord-status');
-                const trackEl = document.getElementById('spotify-track');
-
-                if (statusEl) {
-                    const statusColors = {
-                        online: '#43b581',
-                        idle: '#faa61a',
-                        dnd: '#f04747',
-                        offline: '#747f8d'
-                    };
-                    const status = presence.discord_status || 'offline';
-                    const color = statusColors[status] || '#747f8d';
-                    statusEl.innerHTML = `[<span style="color: ${color}; font-size: 10px;">●</span> ${status} <img src="assets/discord.svg" class="discord-icon" alt="discord">]`;
-                }
-
-                if (trackEl) {
-                    if (presence.listening_to_spotify && presence.spotify) {
-                        const song = presence.spotify.song;
-                        const artist = presence.spotify.artist;
-                        const trackId = presence.spotify.track_id;
-                        trackEl.innerHTML = `<a href="https://open.spotify.com/track/${trackId}" target="_blank" rel="noopener noreferrer" class="retro-link" title="${song} by ${artist}"><b>${song}</b> — ${artist}</a> <a href="https://open.spotify.com/user/312tpdqjc4wbmnjm6qhv2i5zxl5m" target="_blank" rel="noopener noreferrer" title="Spotify Profile"><img src="assets/spotify.svg" class="discord-icon" alt="spotify"></a>`;
-                    } else {
-                        trackEl.innerHTML = `nothing right now <a href="https://open.spotify.com/user/312tpdqjc4wbmnjm6qhv2i5zxl5m" target="_blank" rel="noopener noreferrer" title="Spotify Profile"><img src="assets/spotify.svg" class="discord-icon" alt="spotify"></a>`;
-                    }
-                }
-            } catch (err) {
-                console.error("Lanyard error:", err);
-            }
-        }
-
-        const SUPABASE_URL = "https://rkgzstnvmimumyuykueg.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZ3pzdG52bWltdW15dXlrdWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxMDQ0NTQsImV4cCI6MjEwMjY4MDQ1NH0.yr0GnZ-u75XT60q7tj99Xzu1QPcSFjkreM_z-7Jk6NM";
-
-        function getCookie(name) {
-            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            return match ? match[2] : null;
-        }
-
-        async function updateViewCount() {
-            const counterEl = document.getElementById('view-counter');
-            if (!counterEl) return;
-
-            const isAdmin = getCookie('sol_is_admin') === '1' || localStorage.getItem('sol_is_admin') === '1' || sessionStorage.getItem('sol_admin_pass');
-            const hasViewCookie = getCookie('sol_viewed');
-
-            try {
-                if (!isAdmin && !hasViewCookie) {
-                    // Send +1 view request (only for non-admin visitors)
-                    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_view_count`, {
-                        method: "POST",
-                        headers: {
-                            "apikey": SUPABASE_KEY,
-                            "Authorization": `Bearer ${SUPABASE_KEY}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ page_name: "home" })
-                    });
-                    if (res.ok) {
-                        const count = await res.json();
-                        counterEl.textContent = String(count).padStart(6, '0');
-                        // Set cookie for 1 hour (3600s)
-                        document.cookie = "sol_viewed=1; max-age=3600; path=/; SameSite=Lax";
-                    }
-                } else {
-                    // Admin or cached visitor: read current count only (no increment)
-                    const res = await fetch(`${SUPABASE_URL}/rest/v1/page_views?id=eq.home&select=count`, {
-                        headers: {
-                            "apikey": SUPABASE_KEY,
-                            "Authorization": `Bearer ${SUPABASE_KEY}`
-                        }
-                    });
-                    if (res.ok) {
-                        const rows = await res.json();
-                        if (rows && rows.length > 0) {
-                            counterEl.textContent = String(rows[0].count).padStart(6, '0');
-                        }
-                    }
-                }
-            } catch (err) {
-                console.error("View count error:", err);
-            }
-        }
-
-        function escapeHTML(str) {
-            return String(str || '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        async function fetchLatestPost() {
-            const blogEl = document.getElementById('miniblog-entry');
-            if (!blogEl) return;
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?select=*&is_published=eq.true&order=created_at.desc&limit=1`, {
-                    headers: {
-                        "apikey": SUPABASE_KEY,
-                        "Authorization": `Bearer ${SUPABASE_KEY}`
-                    }
-                });
-                if (res.ok) {
-                    const posts = await res.json();
-                    if (posts && posts.length > 0) {
-                        const p = posts[0];
-                        const date = new Date(p.created_at).toLocaleDateString(undefined, {
-                            year: 'numeric', month: 'short', day: 'numeric'
-                        });
-                        const moodHtml = p.mood ? `<span style="color:#0040ff; margin-left: 6px;">[mood: ${escapeHTML(p.mood)}]</span>` : '';
-                        blogEl.innerHTML = `
-                            <div style="font-weight:bold; font-size:14px; margin-bottom:4px;">✦ ${escapeHTML(p.title)}</div>
-                            <div style="font-size:11px; color:#666; margin-bottom:8px;">${date} ${moodHtml}</div>
-                            <div style="font-size:13px; line-height:1.4; white-space:pre-wrap;">${escapeHTML(p.content)}</div>
-                        `;
-                        return;
-                    }
-                }
-                blogEl.innerHTML = '<p style="font-size:12px; color:#888;">no posts published yet.</p>';
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
         if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", () => {
-                updateCounter();
-                setInterval(updateCounter, 1000);
-                initCrtToggle();
-                updateLanyardStatus();
-                setInterval(updateLanyardStatus, 15000);
-                updateViewCount();
-                fetchLatestPost();
-            });
+            document.addEventListener("DOMContentLoaded", initCrtToggle);
         } else {
-            updateCounter();
-            setInterval(updateCounter, 1000);
             initCrtToggle();
-            updateLanyardStatus();
-            setInterval(updateLanyardStatus, 15000);
-            updateViewCount();
-            fetchLatestPost();
         }
     </script>
 </head>
 
 <body>
-    <div class="fixed-toggles">
-        <button id="vis-toggle" class="retro-toggle" type="button">vis: on</button>
-        <button id="crt-toggle" class="retro-toggle" type="button">crt: on</button>
-    </div>
+    <button id="crt-toggle" class="crt-toggle" type="button">crt: on</button>
     <div class="crt"></div>
 
-    <div class="container">
-        <!-- Top Full-Width Header -->
-        <header class="card header-card">
-            <h1 class="title">
-                <img src="assets/title.png" alt="welcome to my paradise" class="title-img">
-            </h1>
-        </header>
-
-        <!-- 3-Column Content Layout -->
-        <div class="content-grid">
-            <!-- Left Sidebar -->
-            <aside class="sidebar-left">
-                <div class="card">
-                    <h2 class="card-heading">// navigation</h2>
-                    <ul class="nav-list">
-                        <li><a href="index.html">&raquo; home</a></li>
-                        <li><span class="nav-disabled">&raquo; <del>about</del></span></li>
-                        <li><a href="journal.html">&raquo; journal</a></li>
-                        <li><span class="nav-disabled">&raquo; <del>shrines</del></span></li>
-                        <li><span class="nav-disabled">&raquo; <del>links</del></span></li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h2 class="card-heading">// status</h2>
-                    <p class="side-text"><b id="discord-status">[<span style="color: #43b581; font-size: 10px;">●</span>
-                            online <img src="assets/discord.svg" class="discord-icon" alt="discord">]</b></p>
-                    <p class="side-text">listening:<br><span id="spotify-track">loading...</span></p>
-                </div>
-            </aside>
-
-            <!-- Center Main Column -->
-            <main class="main-content">
-                <div class="card">
-                    <div class="notice">
-                        <p style="font-size:15px; font-weight:400; line-height: 1.5; margin: 0 0 10px 0;">welcome to my
-                            site! this is mainly for me to express
-                            my 'skills' in web design and to document my life. it is a work in progress, and it probably
-                            always will be.</p>
-                        <hr class="notice-divider">
-                        <p style="font-size:13px; line-height: 1.4; color: #333; margin: 0 0 6px 0;">this website is
-                            still heavily in development and is very broken. bugs
-                            are being fixed but it will take time. apologies.
-                        </p>
-                        <p style="font-size:11px; color: #777; margin: 0;">(almost all links other than journal &amp;
-                            guestbook are currently disabled... )
-                        </p>
-                    </div>
-
-                    <hr class="divider">
-
-                    <div class="buttons-marquee">
-                        <div class="buttons-track">
-                            <div class="buttons-group">
-                                <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88"
-                                    height="31">
-                                <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88"
-                                    height="31">
-                                <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88"
-                                    height="31">
-                                <a href="https://discord.com/users/903330250610577418" target="_blank"
-                                    rel="noopener noreferrer">
-                                    <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
-                                </a>
-                                <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
-                                <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer">
-                                    <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
-                                </a>
-                                <a href="iloveyou.html">
-                                    <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
-                                </a>
-                                <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer">
-                                    <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
-                                </a>
-                            </div>
-                            <div class="buttons-group" aria-hidden="true">
-                                <img src="assets/buttons/button1.jpg" alt="best viewed 1920x1080" width="88"
-                                    height="31">
-                                <img src="assets/buttons/button2.gif" alt="best viewed with chrome" width="88"
-                                    height="31">
-                                <img src="assets/buttons/button3.gif" alt="don't be a phone chump" width="88"
-                                    height="31">
-                                <a href="https://discord.com/users/903330250610577418" target="_blank"
-                                    rel="noopener noreferrer" tabindex="-1">
-                                    <img src="assets/buttons/button4.gif" alt="discord" width="88" height="31">
-                                </a>
-                                <img src="assets/buttons/button5.gif" alt="html" width="88" height="31">
-                                <a href="https://endeavouros.com/" target="_blank" rel="noopener noreferrer"
-                                    tabindex="-1">
-                                    <img src="assets/buttons/button6.gif" alt="linux powered" width="88" height="31">
-                                </a>
-                                <img src="assets/buttons/button7.gif" alt="made with love" width="91" height="33">
-                                <a href="https://gifcities.org" target="_blank" rel="noopener noreferrer" tabindex="-1">
-                                    <img src="assets/gifcities.png" alt="gifcities" width="88" height="31">
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="divider">
-                    <div class="miniblog" style="text-align: left; margin-top: 16px;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #888; padding-bottom: 4px; margin-bottom: 10px;">
-                            <span style="font-weight: bold; font-size: 13px;">// latest journal entry</span>
-                            <a href="journal.html" class="retro-link" style="font-size: 12px;">&raquo; view all
-                                entries</a>
-                        </div>
-                        <div id="miniblog-entry">
-                            <p style="font-size:12px; color:#888;">loading latest entry...</p>
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            <!-- Right Sidebar -->
-            <aside class="sidebar-right">
-                <div class="card">
-                    <h2 class="card-heading"><span style="color: #0040ff;">//</span> stats</h2>
-                    <p class="side-text">views: <code id="view-counter" style="color: #0040ff; font-weight: bold;">000000</code></p>
-                    <p class="side-text">site updated <wbr> <span id="counter"></span> <wbr> ago</p>
-                </div>
-                <div class="card">
-                    <h2 class="card-heading"><span style="color: #ff2a7a;">//</span> guestbook</h2>
-                    <p class="side-text"><a href="guestbook.html" class="retro-link">&raquo; sign guestbook</a></p>
-                </div>
-                <div class="card">
-                    <h2 class="card-heading"><span style="color: #7928ca;">//</span> music</h2>
-                    <div id="sol-music-player"></div>
-                </div>
-            </aside>
+    <div class="card">
+        <img src="assets/construction.gif" alt="under construction" class="construction-gif">
+        <h1 class="title">working on it...
+        </h1>
+        <div class="notice">
+            <p>revamping the site to look and feel better.</p>
+            <p>please be patient🥺</p>
         </div>
     </div>
-    <script src="scripts/music_player.js"></script>
 </body>
 
 </html>

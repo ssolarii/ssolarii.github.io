@@ -165,7 +165,12 @@ function onYouTubeIframeAPIReady() {
             'controls': 0,
             'autoplay': 0,
             'playsinline': 1,
-            'loop': 1
+            'loop': 1,
+            'disablekb': 1,
+            'fs': 0,
+            'modestbranding': 1,
+            'rel': 0,
+            'iv_load_policy': 3
         },
         events: {
             'onReady': onPlayerReady,
@@ -294,9 +299,16 @@ seekBar.addEventListener("mouseup", function () {
 });
 
 playButton.addEventListener("click", function () {
-    if (player.getPlayerState() == 1) {
+    if (!player || typeof player.getPlayerState !== 'function') return;
+    var state = player.getPlayerState();
+    if (state === 1) {
         player.pauseVideo();
+    } else if (state === 2) {
+        player.playVideo();
     } else {
+        if (myPlaylists[currentPlaylist]) {
+            player.loadPlaylist({ list: myPlaylists[currentPlaylist] });
+        }
         player.playVideo();
     }
 });

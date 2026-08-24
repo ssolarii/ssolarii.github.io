@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 reasons</title>
+    <link rel="icon" href="../assets/frames/1.png" type="image/png">
+    <style>
+        @font-face {
+            font-family: 'W95FA';
+            src: url('../assets/fonts/W95FA.woff2') format('woff2'),
+                url('../assets/fonts/W95FA.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            background-color: #eae6f0;
+            background-image: url('../assets/bg.png');
+            background-repeat: repeat;
+            font-family: 'W95FA', 'MS Sans Serif', Arial, sans-serif;
+            color: #222;
+            padding: 30px 16px 60px 16px;
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background: #8b6aae;
+            color: #fff;
+        }
+
+        /* crt */
+        body.no-crt .crt {
+            display: none;
+        }
+
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .crt-btn {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            z-index: 10000;
+            padding: 4px 14px;
+            background: #f2f2f2;
+            color: #222;
+            border: 1px solid #5e5e5e;
+            font-family: 'W95FA', 'MS Sans Serif', Arial, sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow:
+                inset 13px 0px 6px -10px rgb(66 66 66 / 20%),
+                inset -13px 0px 6px -10px rgb(66 66 66 / 56%),
+                inset 0px 13px 6px -10px #ffffff,
+                inset 0px -13px 6px -10px rgb(66 66 66 / 38%);
+            user-select: none;
+        }
+
+        .crt-btn:hover {
+            background: #fff;
+        }
+
+        /* container */
+        .container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        /* back link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #222;
+            text-decoration: underline;
+        }
+
+        .back-link:hover {
+            background: #222;
+            color: #fff;
+        }
+
+        /* title */
+        .page-title {
+            font-size: 20px;
+            font-weight: normal;
+            margin: 0 0 6px 0;
+            color: #333;
+            letter-spacing: 1px;
+        }
+
+        .page-sub {
+            font-size: 12px;
+            color: #999;
+            margin: 0 0 20px 0;
+        }
+
+        /* card */
+        .card {
+            background: #f2f2f2;
+            border: 1px solid #5e5e5e;
+            padding: 20px;
+            box-shadow:
+                inset 13px 0px 6px -10px rgb(66 66 66 / 20%),
+                inset -13px 0px 6px -10px rgb(66 66 66 / 56%),
+                inset 0px 13px 6px -10px #ffffff,
+                inset 0px -13px 6px -10px rgb(66 66 66 / 38%);
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 14px 10px;
+            }
+        }
+
+        /* reason row */
+        .reason-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px dotted #ccc;
+            min-height: 32px;
+            position: relative;
+        }
+
+        .reason-row:last-child {
+            border-bottom: none;
+        }
+
+        .reason-num {
+            flex-shrink: 0;
+            width: 30px;
+            font-size: 11px;
+            color: #9b7bb8;
+            font-weight: bold;
+            padding-top: 1px;
+            text-align: right;
+        }
+
+        .reason-content {
+            flex: 1;
+            min-width: 0;
+            position: relative;
+        }
+
+        .reason-text {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            display: none;
+        }
+
+        .reason-text.revealed {
+            display: block;
+        }
+
+        /* paper cover strip */
+        .paper-cover {
+            display: inline-block;
+            background: #ebe4f0;
+            border: 1px solid #c4b8d4;
+            padding: 2px 10px;
+            font-size: 11px;
+            color: #8b7ba0;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.08);
+        }
+
+        .paper-cover:hover {
+            background: #e0d6ed;
+            color: #6b5a80;
+            border-color: #b0a0c4;
+        }
+
+        .paper-cover.gone {
+            opacity: 0;
+            transform: translateY(-4px);
+            pointer-events: none;
+            position: absolute;
+        }
+
+        /* reveal all button */
+        .reveal-all {
+            display: block;
+            margin: 20px auto 0 auto;
+            padding: 6px 16px;
+            background: #f2f2f2;
+            border: 1px solid #5e5e5e;
+            font-family: 'W95FA', 'MS Sans Serif', Arial, sans-serif;
+            font-size: 12px;
+            color: #555;
+            cursor: pointer;
+            box-shadow:
+                inset 13px 0px 6px -10px rgb(66 66 66 / 20%),
+                inset -13px 0px 6px -10px rgb(66 66 66 / 56%),
+                inset 0px 13px 6px -10px #ffffff,
+                inset 0px -13px 6px -10px rgb(66 66 66 / 38%);
+        }
+
+        .reveal-all:hover {
+            background: #fff;
+            color: #333;
+        }
+
+        /* counter */
+        .counter {
+            text-align: center;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="crt-toggle" class="crt-btn" type="button">crt: on</button>
+    <div class="crt"></div>
+
+    <div class="container">
+        <a href="index.html" class="back-link">&lt;&lt; back to letter</a>
+        <h1 class="page-title">100 reasons i love you</h1>
+        <p class="page-sub">click to reveal (or just tap reveal all if you're lazy)</p>
+
+        <div class="card" id="reasons-card">
+        </div>
+
+        <button class="reveal-all" id="reveal-all-btn" type="button">reveal all</button>
+        <p class="counter" id="counter">0 / 100 revealed</p>
+    </div>
+
+    <script>
+        /* crt toggle */
+        (function () {
+            var btn = document.getElementById('crt-toggle');
+            var off = localStorage.getItem('loveyou_crt') === 'off';
+            if (off) {
+                document.body.classList.add('no-crt');
+                btn.textContent = 'crt: off';
+            }
+            btn.addEventListener('click', function () {
+                document.body.classList.toggle('no-crt');
+                var nowOff = document.body.classList.contains('no-crt');
+                localStorage.setItem('loveyou_crt', nowOff ? 'off' : 'on');
+                btn.textContent = nowOff ? 'crt: off' : 'crt: on';
+            });
+        })();
+
+        /*
+        ohmygod this took so long
+        */
+        var reasons = [
+            "your smile",
+            "your laugh when something catches you off guard",
+            "the way you say my name",
+            "how safe i feel around you",
+            "your ego 👀",
+            "the way you listen when i'm talking about my interests",
+            "your taste in music",
+            "how you look when you're focused",
+            "your hugs",
+            "the comfortable silence between us",
+            "how you remember little things i mentioned once",
+            "your sense of humor",
+            "our inside jokes",
+            "how patient you are with me",
+            "the way you get excited about small things",
+            "the way you make everything fun",
+            "your honesty even when it's hard",
+            "the way you hold my hand",
+            "how you always check in on me",
+            "your determination",
+            "how you never judge me for being weird",
+            "the faces you make without realizing",
+            "your voice",
+            "how you always share your food with me",
+            "your curiosity about everything",
+            "how you make me want to be better",
+            "the little voice notes and messages you send",
+            "your eyes",
+            "the way you apologize when you mean it",
+            "your personality",
+            "how comfortable i am being myself around you",
+            "the way you talk about things you're passionate about",
+            "your scent",
+            "how you always try to make time for us",
+            "your stubbornness (even when it's annoying)",
+            "the way you look at me",
+            "how you encourage me when i doubt myself",
+            "your empathy",
+            "how you always know when something's off",
+            "your creativity",
+            "the way you express yourself so well",
+            "how you make me feel like i matter",
+            "your bravery",
+            "how you never take us for granted",
+            "your loyalty",
+            "the way you get clingy at night",
+            "how proud i am to be with you",
+            "the way you light up a room",
+            "your warmth on cold days",
+            "how you always find a way to make me laugh",
+            "your perspective on things",
+            "your taste",
+            "the way you make me feel seen",
+            "how you handle tough situations",
+            "your energy",
+            "the way you text me random things during the day",
+            "how you make holidays and birthdays feel special",
+            "your gentleness",
+            "the way you laugh at your own jokes",
+            "how you push me to try new things",
+            "your thoughtfulness with gifts",
+            "the sound of your heartbeat",
+            "how you love with your whole chest",
+            "the way you look in your favorite outfit",
+            "your vulnerability when you trust me with hard stuff",
+            "how easy it is to talk to you for hours",
+            "your independence",
+            "the way you always notice new things about me",
+            "how you respect my space when i need it",
+            "your confidence",
+            "the way you get competitive over dumb games",
+            "your optimism",
+            "how you support my goals",
+            "your intelligence",
+            "the way you say 'i love you' back",
+            "how you've changed my life for the better",
+            "your grace under pressure",
+            "how you always pick up on when i need reassurance",
+            "your spontaneity",
+            "how you make me feel lucky every day",
+            "your compassion",
+            "the way you never give up on things that matter",
+            "how much you've taught me about love",
+            "your softness",
+            "how every love song makes sense now",
+            "the way we can turn anything into a joke",
+            "the way you lighten the mood",
+            "how we're so similar yet so different",
+            "how you make me feel complete",
+            "your maturity",
+            "your patience when i'm being childish",
+            "how you act when you're excited",
+            "the way our tastes complement each other",
+            "the way we can 'argue' over the dumbest things",
+            "the way you encourage me",
+            "how you look when you're trying to be serious but i can see you're about to laugh",
+            "the way i can recognize you even in a crowded room",
+            "how everything softens the moment i hear your name",
+            "the fact that you're you, and i wouldn't change a single thing",
+            "that if i had to choose all over again, i'd choose you every time",
+            "and after all one hundred reasons...",
+            "because i just do."
+        ];
+
+        var revealed = 0;
+        var card = document.getElementById('reasons-card');
+        var counterEl = document.getElementById('counter');
+
+        function updateCounter() {
+            counterEl.textContent = revealed + ' / 100 revealed';
+        }
+
+        function revealReason(row, cover, text) {
+            cover.classList.add('gone');
+            setTimeout(function () {
+                cover.style.display = 'none';
+                text.classList.add('revealed');
+            }, 250);
+            revealed++;
+            updateCounter();
+        }
+
+        /* build the list */
+        for (var i = 0; i < reasons.length; i++) {
+            var row = document.createElement('div');
+            row.className = 'reason-row';
+
+            var num = document.createElement('div');
+            num.className = 'reason-num';
+            num.textContent = '#' + (i + 1);
+
+            var content = document.createElement('div');
+            content.className = 'reason-content';
+
+            var cover = document.createElement('span');
+            cover.className = 'paper-cover';
+            cover.textContent = '[click to reveal]';
+
+            var text = document.createElement('span');
+            text.className = 'reason-text';
+            text.textContent = reasons[i];
+
+            (function (r, c, t) {
+                c.addEventListener('click', function () {
+                    revealReason(r, c, t);
+                });
+            })(row, cover, text);
+
+            content.appendChild(cover);
+            content.appendChild(text);
+            row.appendChild(num);
+            row.appendChild(content);
+            card.appendChild(row);
+        }
+
+        /* reveal all button */
+        document.getElementById('reveal-all-btn').addEventListener('click', function () {
+            var covers = document.querySelectorAll('.paper-cover:not(.gone)');
+            var texts = document.querySelectorAll('.reason-text:not(.revealed)');
+            for (var i = 0; i < covers.length; i++) {
+                (function (idx) {
+                    setTimeout(function () {
+                        covers[idx].classList.add('gone');
+                        setTimeout(function () {
+                            covers[idx].style.display = 'none';
+                            if (texts[idx]) texts[idx].classList.add('revealed');
+                        }, 250);
+                    }, idx * 30);
+                })(i);
+            }
+            revealed = 100;
+            setTimeout(updateCounter, covers.length * 30 + 300);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>for you</title>
+    <link rel="icon" href="../assets/frames/1.png" type="image/png">
+    <style>
+        @font-face {
+            font-family: 'W95FA';
+            src: url('../assets/fonts/W95FA.woff2') format('woff2'),
+                url('../assets/fonts/W95FA.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eae6f0;
+            background-image: url('../assets/bg.png');
+            background-repeat: repeat;
+            font-family: 'W95FA', 'MS Sans Serif', Arial, sans-serif;
+            color: #222;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background: #8b6aae;
+            color: #fff;
+        }
+
+        /* crt */
+        body.no-crt .crt {
+            display: none;
+        }
+
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .crt-btn {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            z-index: 10000;
+            padding: 4px 14px;
+            background: #f2f2f2;
+            color: #222;
+            border: 1px solid #5e5e5e;
+            font-family: 'W95FA', 'MS Sans Serif', Arial, sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow:
+                inset 13px 0px 6px -10px rgb(66 66 66 / 20%),
+                inset -13px 0px 6px -10px rgb(66 66 66 / 56%),
+                inset 0px 13px 6px -10px #ffffff,
+                inset 0px -13px 6px -10px rgb(66 66 66 / 38%);
+            user-select: none;
+        }
+
+        .crt-btn:hover {
+            background: #fff;
+        }
+
+        /* card */
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: #f2f2f2;
+            border: 1px solid #5e5e5e;
+            padding: 0;
+            box-shadow:
+                inset 13px 0px 6px -10px rgb(66 66 66 / 20%),
+                inset -13px 0px 6px -10px rgb(66 66 66 / 56%),
+                inset 0px 13px 6px -10px #ffffff,
+                inset 0px -13px 6px -10px rgb(66 66 66 / 38%);
+            text-align: center;
+        }
+
+        .card-inner {
+            padding: 40px 28px;
+        }
+
+        @media (max-width: 480px) {
+            .card-inner {
+                padding: 28px 16px;
+            }
+        }
+
+        /* pixel gift box */
+        .pixel-gift {
+            display: inline-block;
+            width: 96px;
+            height: 96px;
+            position: relative;
+            image-rendering: pixelated;
+            margin: 12px auto;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .pixel-gift-img {
+            width: 96px;
+            height: auto;
+            image-rendering: pixelated;
+            display: block;
+            margin: 0 auto;
+            user-select: none;
+        }
+
+        .pixel-gift:hover {
+            transform: translateY(-4px) scale(1.06);
+        }
+
+        .pixel-gift:active {
+            transform: translateY(0px) scale(0.96);
+        }
+
+        /* heading */
+        .heading {
+            font-size: 22px;
+            font-weight: normal;
+            margin: 0 0 24px 0;
+            color: #333;
+        }
+
+        .click-hint {
+            font-size: 12px;
+            color: #888;
+            margin: 20px 0 0 0;
+            cursor: pointer;
+        }
+
+        /* device note */
+        .device-note {
+            font-size: 11px;
+            color: #aaa;
+            margin: 0 0 20px 0;
+        }
+
+        /* divider */
+        hr.thin {
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 20px 0;
+        }
+
+        /* letter */
+        .letter {
+            display: none;
+        }
+
+        .letter.open {
+            display: block;
+        }
+
+        .letter-paper {
+            background: #fffdf7;
+            border: 1px solid #c4b8a8;
+            padding: 28px 24px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #333;
+            position: relative;
+        }
+
+        @media (max-width: 480px) {
+            .letter-paper {
+                padding: 20px 14px;
+                font-size: 13px;
+            }
+        }
+
+        .letter-decor {
+            text-align: center;
+            font-size: 11px;
+            color: #c9b8db;
+            letter-spacing: 4px;
+            margin-bottom: 16px;
+        }
+
+        .letter-date {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            font-size: 10px;
+            color: #bbb;
+        }
+
+        .letter-salutation {
+            font-weight: bold;
+            margin-bottom: 14px;
+            color: #444;
+        }
+
+        .letter-body p {
+            margin: 0 0 12px 0;
+        }
+
+        .letter-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .letter-sign {
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px dashed #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .letter-sign-name {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .letter-sign-name strong {
+            color: #333;
+        }
+
+        /* pixel heart - css */
+        .pixel-heart {
+            display: inline-block;
+            width: 12px;
+            height: 10px;
+            position: relative;
+        }
+
+        .pixel-heart::before {
+            content: '';
+            width: 2px;
+            height: 2px;
+            background: transparent;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow:
+                2px 0 0 #9b7bb8, 4px 0 0 #9b7bb8,
+                8px 0 0 #9b7bb8, 10px 0 0 #9b7bb8,
+                0px 2px 0 #9b7bb8, 2px 2px 0 #9b7bb8, 4px 2px 0 #9b7bb8, 6px 2px 0 #9b7bb8,
+                8px 2px 0 #9b7bb8, 10px 2px 0 #9b7bb8, 12px 2px 0 #9b7bb8,
+                0px 4px 0 #9b7bb8, 2px 4px 0 #9b7bb8, 4px 4px 0 #9b7bb8, 6px 4px 0 #9b7bb8,
+                8px 4px 0 #9b7bb8, 10px 4px 0 #9b7bb8, 12px 4px 0 #9b7bb8,
+                2px 6px 0 #9b7bb8, 4px 6px 0 #9b7bb8, 6px 6px 0 #9b7bb8,
+                8px 6px 0 #9b7bb8, 10px 6px 0 #9b7bb8,
+                4px 8px 0 #9b7bb8, 6px 8px 0 #9b7bb8, 8px 8px 0 #9b7bb8,
+                6px 10px 0 #9b7bb8;
+        }
+
+        /* links */
+        .retro-link {
+            color: #222;
+            text-decoration: underline;
+            font-size: 13px;
+        }
+
+        .retro-link:hover {
+            background: #222;
+            color: #fff;
+        }
+
+        .reasons-link {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .fold-btn {
+            background: none;
+            border: none;
+            font-family: 'W95FA', 'MS Sans Serif', Arial, sans-serif;
+            font-size: 11px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        .fold-btn:hover {
+            color: #555;
+        }
+
+        /* gift state */
+        .gift {
+            display: block;
+        }
+
+        .gift.closed {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="crt-toggle" class="crt-btn" type="button">crt: on</button>
+    <div class="crt"></div>
+
+    <div class="card">
+        <div class="card-inner">
+
+            <!-- gift state -->
+            <div id="gift-state" class="gift">
+                <h1 class="heading">for you</h1>
+                <hr class="thin">
+                <div class="pixel-gift" id="gift-click" title="click to open ↑">
+                    <img src="gift.png" width="96" height="96" class="pixel-gift-img" alt="open gift">
+                </div>
+                <p class="click-hint" id="hint-click">click to open ↑</p><br>
+                <p class="device-note">(open this on your laptop.<br>works on mobile but not as well)<br><br>100%
+                    handcoded with love <span class="pixel-heart"></span></p>
+            </div>
+
+            <!-- letter state -->
+            <div id="letter-state" class="letter">
+                <article class="letter-paper">
+                    <div class="letter-decor">- * - * - * - * -</div>
+                    <p class="letter-date" id="letter-date">August 25, 2026</p>
+                    <div class="letter-salutation">dear Breah,</div>
+
+                    <div class="letter-body">
+                        <p>
+                            happy (early) birthday! there are so many things i want to say to you,
+                            but most of all i just want you to know how grateful i am that you
+                            exist.
+                        </p>
+                        <p>
+                            i'm surprised we found each other but i'm so happy we did. you make me
+                            the happiest person i've ever been and i can't wait to see what the
+                            future holds for us.
+                        </p>
+                        <p>
+                            i hope this year brings you everything you deserve. whatever you're
+                            chasing, i'll always be here cheering you on.
+                        </p>
+                        <p>
+                            happy birthday. love you lots <span class="pixel-heart"></span>
+                        </p>
+                    </div>
+
+                    <div class="letter-sign">
+                        <div class="letter-sign-name">
+                            with love,<br>
+                            <strong>Ale</strong> <span class="pixel-heart"></span>
+                        </div>
+                        <button id="fold-btn" class="fold-btn" type="button">fold back</button>
+                    </div>
+                </article>
+
+                <p class="reasons-link">
+                    <a href="reasons.html" class="retro-link">100 reasons i love you &gt;&gt;</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /* crt toggle */
+        (function () {
+            var btn = document.getElementById('crt-toggle');
+            var off = localStorage.getItem('loveyou_crt') === 'off';
+            if (off) {
+                document.body.classList.add('no-crt');
+                btn.textContent = 'crt: off';
+            }
+            btn.addEventListener('click', function () {
+                document.body.classList.toggle('no-crt');
+                var nowOff = document.body.classList.contains('no-crt');
+                localStorage.setItem('loveyou_crt', nowOff ? 'off' : 'on');
+                btn.textContent = nowOff ? 'crt: off' : 'crt: on';
+            });
+        })();
+
+        /* date stamp */
+        (function () {
+            var el = document.getElementById('letter-date');
+            if (el) {
+                var d = new Date();
+                el.textContent = d.toLocaleDateString(undefined, {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+            }
+        })();
+
+        /* gift open / letter toggle */
+        (function () {
+            var giftState = document.getElementById('gift-state');
+            var letterState = document.getElementById('letter-state');
+            var giftClick = document.getElementById('gift-click');
+            var hintClick = document.getElementById('hint-click');
+            var foldBtn = document.getElementById('fold-btn');
+
+            function openGift() {
+                giftState.classList.add('closed');
+                giftState.style.display = 'none';
+                letterState.classList.add('open');
+            }
+
+            function closeGift() {
+                letterState.classList.remove('open');
+                giftState.classList.remove('closed');
+                giftState.style.display = 'block';
+            }
+
+            if (giftClick) giftClick.addEventListener('click', openGift);
+            if (hintClick) hintClick.addEventListener('click', openGift);
+            if (foldBtn) foldBtn.addEventListener('click', closeGift);
+        })();
+
+        /* sparkle cursor - muted lavender palette */
+        (function () {
+            var colours = ["#c9b8db", "#b8a3cc", "#9b7bb8", "#ddd", "#a8a8a8"];
+            var sparkles = 50;
+            var x = 400, ox = 400, y = 300, oy = 300;
+            var swide = 800, shigh = 600, sleft = 0, sdown = 0;
+            var tiny = [], star = [], starv = [], starx = [], stary = [];
+            var tinyx = [], tinyy = [], tinyv = [];
+
+            function init() {
+                for (var i = 0; i < sparkles; i++) {
+                    var colour = colours[i % colours.length];
+                    var t = createDiv(3, 3, colour);
+                    t.style.visibility = "hidden";
+                    t.style.zIndex = "9998";
+                    t.style.pointerEvents = "none";
+                    document.body.appendChild(tiny[i] = t);
+                    starv[i] = 0;
+                    tinyv[i] = 0;
+                    var s = createDiv(5, 5, "transparent");
+                    s.style.visibility = "hidden";
+                    s.style.zIndex = "9998";
+                    s.style.pointerEvents = "none";
+                    var rlef = createDiv(1, 5, colour);
+                    var rdow = createDiv(5, 1, colour);
+                    rlef.style.pointerEvents = "none";
+                    rdow.style.pointerEvents = "none";
+                    s.appendChild(rlef);
+                    s.appendChild(rdow);
+                    rlef.style.top = "2px";
+                    rlef.style.left = "0px";
+                    rdow.style.top = "0px";
+                    rdow.style.left = "2px";
+                    document.body.appendChild(star[i] = s);
+                }
+                set_width();
+                sparkle();
+            }
+
+            function sparkle() {
+                if (x !== ox || y !== oy) {
+                    ox = x; oy = y;
+                    for (var c = 0; c < sparkles; c++) {
+                        if (!starv[c]) {
+                            star[c].style.left = (starx[c] = x) + "px";
+                            star[c].style.top = (stary[c] = y) + "px";
+                            star[c].style.clip = "rect(0px, 5px, 5px, 0px)";
+                            star[c].style.visibility = "visible";
+                            starv[c] = 50;
+                            break;
+                        }
+                    }
+                }
+                for (var c = 0; c < sparkles; c++) {
+                    if (starv[c]) update_star(c);
+                    if (tinyv[c]) update_tiny(c);
+                }
+                requestAnimationFrame(sparkle);
+            }
+
+            function update_star(i) {
+                if (--starv[i] === 25) star[i].style.clip = "rect(1px, 4px, 4px, 1px)";
+                if (starv[i]) {
+                    stary[i] += 1 + Math.random() * 2;
+                    starx[i] += (i % 5 - 2) / 5;
+                    if (stary[i] < shigh + sdown && starx[i] > sleft && starx[i] < swide + sleft - 5) {
+                        star[i].style.top = stary[i] + "px";
+                        star[i].style.left = starx[i] + "px";
+                    } else {
+                        star[i].style.visibility = "hidden";
+                        starv[i] = 0;
+                    }
+                } else {
+                    tinyv[i] = 50;
+                    tiny[i].style.top = (tinyy[i] = stary[i]) + "px";
+                    tiny[i].style.left = (tinyx[i] = starx[i]) + "px";
+                    tiny[i].style.width = "2px";
+                    tiny[i].style.height = "2px";
+                    star[i].style.visibility = "hidden";
+                    tiny[i].style.visibility = "visible";
+                }
+            }
+
+            function update_tiny(i) {
+                if (--tinyv[i] === 25) {
+                    tiny[i].style.width = "1px";
+                    tiny[i].style.height = "1px";
+                }
+                if (tinyv[i]) {
+                    tinyy[i] += 1 + Math.random() * 2;
+                    tinyx[i] += (i % 5 - 2) / 5;
+                    if (tinyy[i] < shigh + sdown && tinyx[i] > sleft && tinyx[i] < swide + sleft - 2) {
+                        tiny[i].style.top = tinyy[i] + "px";
+                        tiny[i].style.left = tinyx[i] + "px";
+                    } else {
+                        tiny[i].style.visibility = "hidden";
+                        tinyv[i] = 0;
+                    }
+                } else {
+                    tiny[i].style.visibility = "hidden";
+                }
+            }
+
+            function mouse(e) {
+                set_scroll();
+                y = e ? e.pageY : 0;
+                x = e ? e.pageX : 0;
+            }
+
+            function set_scroll() {
+                sdown = window.pageYOffset || 0;
+                sleft = window.pageXOffset || 0;
+            }
+
+            function set_width() {
+                swide = window.innerWidth || 800;
+                shigh = window.innerHeight || 600;
+            }
+
+            function createDiv(h, w, bg) {
+                var d = document.createElement("div");
+                d.style.position = "absolute";
+                d.style.height = h + "px";
+                d.style.width = w + "px";
+                d.style.overflow = "hidden";
+                d.style.backgroundColor = bg;
+                d.style.imageRendering = "pixelated";
+                return d;
+            }
+
+            document.addEventListener("mousemove", mouse);
+            window.addEventListener("resize", set_width);
+            window.addEventListener("scroll", set_scroll);
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+
+</html>

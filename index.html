@@ -60,6 +60,11 @@
   .artist{font-size:.95rem;color:var(--dim);margin-top:.1rem}
   .visitor{font-weight:900;font-size:.95rem}
   .private{display:inline-block;margin-top:.3rem;font-size:.85rem;color:var(--dim);text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+  .sr-only{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
 </style>
 </head>
 <body>
@@ -69,12 +74,12 @@
     <nav class="links" aria-label="Social links">
       <a class="link" id="discord-link" href="https://discord.com/users/903330250610577418" target="_blank" rel="noopener" aria-label="Discord">
         <img src="./assets/icons/discord.png" alt="" />
-        <span class="status"><span class="dot" id="discord-dot"></span><span id="discord-status-text">online</span></span>
+        <span class="status" aria-hidden="true"><span class="dot" id="discord-dot"></span><span id="discord-status-text">…</span></span>
       </a>
       <a class="link" id="instagram-link" href="https://www.instagram.com/sol.tar.xz/" target="_blank" rel="noopener" aria-label="Instagram">
         <img src="./assets/icons/instagram.png" alt="" />
       </a>
-      <a class="link" id="tiktok-link" href="http://tiktok.com/@...solari" target="_blank" rel="noopener" aria-label="TikTok">
+      <a class="link" id="tiktok-link" href="https://www.tiktok.com/@...solari" target="_blank" rel="noopener" aria-label="TikTok">
         <img src="./assets/icons/tiktok.png" alt="" />
       </a>
       <a class="link" id="spotify-link" href="https://open.spotify.com/user/312tpdqjc4wbmnjm6qhv2i5zxl5m?si=a65ec906b7d348e7" target="_blank" rel="noopener" aria-label="Spotify">
@@ -84,12 +89,12 @@
 
     <footer class="footer">
       <div class="now-playing">
-        <p class="eyebrow" id="np-label">Loading...</p>
-        <p class="track" id="np-track">????</p>
-        <p class="artist" id="np-artist">????</p>
+        <p class="eyebrow" id="np-label">Loading…</p>
+        <p class="track" id="np-track"></p>
+        <p class="artist" id="np-artist"></p>
       </div>
       <div class="meta">
-        <p class="visitor" id="visitor-count">??th visitor</p>
+        <p class="visitor" id="visitor-count">—</p>
         <span class="private" title="Not wired up yet">say something private</span>
       </div>
     </footer>
@@ -98,23 +103,39 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
   const CONFIG = {
-    discordUserId: "903330250610577418",     
-    supabaseKey: "sb_publishable_f9E2FP9NarrHQtO921R01Q_Hmbw_ynp"  
+    discordUserId: "903330250610577418",
+    supabaseUrl: "https://rkgzstnvmimumyuykueg.supabase.co",
+    supabaseKey: "sb_publishable_f9E2FP9NarrHQtO921R01Q_Hmbw_ynp"
   };
 
-
+  const els = {
+    discordLink:   document.getElementById("discord-link"),
+    discordDot:    document.getElementById("discord-dot"),
+    discordStatus: document.getElementById("discord-status-text"),
+    npLabel:       document.getElementById("np-label"),
+    npTrack:       document.getElementById("np-track"),
+    npArtist:      document.getElementById("np-artist"),
+    visitorCount:  document.getElementById("visitor-count")
+  };
 
   function ordinal(n){
     const s = ["th","st","nd","rd"], v = n % 100;
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   }
 
+  function setDiscordStatus(status){
+    els.discordStatus.textContent = status;
+    els.discordDot.dataset.status = status;
+    els.discordLink.setAttribute("aria-label", "Discord — " + status);
+  }
+
   async function bumpVisitorCount(){
-    if (!window.supabase) return;
+    if (!window.supabase || !CONFIG.supabaseUrl) return;
     try {
       const client = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
       const seenKey = "sols-quicklinks-seen";
       let count;
+
       if (!sessionStorage.getItem(seenKey)) {
         const { data, error } = await client.rpc("increment_visitor_count");
         if (error) throw error;
@@ -125,32 +146,43 @@
         if (error) throw error;
         count = data.count;
       }
-      document.getElementById("visitor-count").textContent = ordinal(count) + " visitor";
+
+      if (typeof count !== "number" || !isFinite(count)) throw new Error("Bad visitor count");
+      els.visitorCount.textContent = ordinal(count) + " visitor";
     } catch (e) {
-      console.warn("Visitor counter not wired up yet — run the SQL setup in the comment above.", e);
+      console.warn("Visitor counter unavailable.", e);
+      els.visitorCount.textContent = "— visitors";
     }
   }
 
   async function updatePresence(){
     try {
       const res = await fetch(`https://api.lanyard.rest/v1/users/${CONFIG.discordUserId}`);
-      const { data } = await res.json();
-      document.getElementById("discord-status-text").textContent = data.discord_status;
-      document.getElementById("discord-dot").dataset.status = data.discord_status;
-      const label = document.getElementById("np-label");
-      const track = document.getElementById("np-track");
-      const artist = document.getElementById("np-artist");
+      const json = await res.json();
+
+      if (!res.ok || !json || !json.success || !json.data) {
+        throw new Error((json && json.error && json.error.message) || "Lanyard unavailable");
+      }
+
+      const data = json.data;
+      const status = data.discord_status || "offline";
+      setDiscordStatus(status);
+
       if (data.listening_to_spotify && data.spotify) {
-        label.textContent = "Listening now\u2026";
-        track.textContent = data.spotify.song;
-        artist.textContent = data.spotify.artist;
+        els.npLabel.textContent = "Listening now…";
+        els.npTrack.textContent = data.spotify.song || "";
+        els.npArtist.textContent = data.spotify.artist || "";
       } else {
-        label.textContent = "Not listening to anything";
-        track.textContent = "";
-        artist.textContent = "";
+        els.npLabel.textContent = "Not listening to anything";
+        els.npTrack.textContent = "";
+        els.npArtist.textContent = "";
       }
     } catch (e) {
-      console.warn("Discord presence unavailable — make sure you've joined the Lanyard Discord server.", e);
+      console.warn("Discord presence unavailable — make sure the user is monitored by Lanyard.", e);
+      setDiscordStatus("offline");
+      els.npLabel.textContent = "Presence unavailable";
+      els.npTrack.textContent = "";
+      els.npArtist.textContent = "";
     }
   }
 

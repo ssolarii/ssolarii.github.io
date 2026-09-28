@@ -84,12 +84,12 @@
 
     <footer class="footer">
       <div class="now-playing">
-        <p class="eyebrow" id="np-label">Listening now&hellip;</p>
-        <p class="track" id="np-track">2SEATER</p>
-        <p class="artist" id="np-artist">Tyler, The Creator</p>
+        <p class="eyebrow" id="np-label">Loading...</p>
+        <p class="track" id="np-track">????</p>
+        <p class="artist" id="np-artist">????</p>
       </div>
       <div class="meta">
-        <p class="visitor" id="visitor-count">27th visitor</p>
+        <p class="visitor" id="visitor-count">??th visitor</p>
         <span class="private" title="Not wired up yet">say something private</span>
       </div>
     </footer>
@@ -98,19 +98,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
   const CONFIG = {
-    discordUserId: "903330250610577418",      // join the Lanyard Discord (discord.gg/lanyard) so it keeps tracking presence
-    supabaseUrl: "https://rkgzstnvmimumyuykueg.supabase.co",
-    supabaseKey: "sb_publishable_f9E2FP9NarrHQtO921R01Q_Hmbw_ynp"  // publishable key only — never put the secret key here
+    discordUserId: "903330250610577418",     
+    supabaseKey: "sb_publishable_f9E2FP9NarrHQtO921R01Q_Hmbw_ynp"  
   };
 
-  /* Supabase setup (run once in the SQL editor):
-     create table visitors (id int primary key, count int not null default 0);
-     insert into visitors (id, count) values (1, 0);
-     create function increment_visitor_count() returns int language sql as $$
-       update visitors set count = count + 1 where id = 1 returning count;
-     $$;
-     -- then allow the anon/publishable role to execute it (Database > Functions > permissions)
-  */
+
 
   function ordinal(n){
     const s = ["th","st","nd","rd"], v = n % 100;
